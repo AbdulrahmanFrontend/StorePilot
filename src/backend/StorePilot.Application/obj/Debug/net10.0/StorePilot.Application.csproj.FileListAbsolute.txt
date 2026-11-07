@@ -1,0 +1,15 @@
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\bin\Debug\net10.0\StorePilot.Application.deps.json
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\bin\Debug\net10.0\StorePilot.Application.dll
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\bin\Debug\net10.0\StorePilot.Application.pdb
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\bin\Debug\net10.0\StorePilot.Domain.dll
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\bin\Debug\net10.0\StorePilot.Domain.pdb
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePilot.Application.csproj.AssemblyReference.cache
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePilot.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePilot.Application.AssemblyInfoInputs.cache
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePilot.Application.AssemblyInfo.cs
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePilot.Application.csproj.CoreCompileInputs.cache
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePil.D0EEB1DB.Up2Date
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePilot.Application.dll
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\refint\StorePilot.Application.dll
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\StorePilot.Application.pdb
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Application\obj\Debug\net10.0\ref\StorePilot.Application.dll

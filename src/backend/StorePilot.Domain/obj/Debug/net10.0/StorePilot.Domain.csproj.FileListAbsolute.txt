@@ -1,0 +1,11 @@
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\bin\Debug\net10.0\StorePilot.Domain.deps.json
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\bin\Debug\net10.0\StorePilot.Domain.dll
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\bin\Debug\net10.0\StorePilot.Domain.pdb
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\StorePilot.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\StorePilot.Domain.AssemblyInfoInputs.cache
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\StorePilot.Domain.AssemblyInfo.cs
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\StorePilot.Domain.csproj.CoreCompileInputs.cache
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\StorePilot.Domain.dll
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\refint\StorePilot.Domain.dll
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\StorePilot.Domain.pdb
+D:\Abdulrahman\Full Real Project\StorePilot\src\backend\StorePilot.Domain\obj\Debug\net10.0\ref\StorePilot.Domain.dll

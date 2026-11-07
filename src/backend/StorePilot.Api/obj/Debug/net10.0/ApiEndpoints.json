@@ -1,0 +1,12 @@
+[
+  {
+    "ContainingType": "StorePilot.Api.Controllers.SystemController",
+    "Method": "Health",
+    "RelativePath": "api/system/health",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
