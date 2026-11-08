@@ -88,6 +88,8 @@ public sealed class JsonStoreSettingsService(
 
         string? newLogoPath = null;
 
+        bool settingsSaved = false;
+
         try
         {
             var settings = await ReadAsync(cancellationToken);
@@ -109,17 +111,25 @@ public sealed class JsonStoreSettingsService(
 
             await WriteAsync(settings, cancellationToken);
 
-            // حذف الشعار السابق بعد نجاح حفظ الإعدادات الجديدة.
+            settingsSaved = true;
+
             if (!string.IsNullOrWhiteSpace(oldLogoFileName))
             {
-                DeleteLogoFile(oldLogoFileName);
+                try
+                {
+                    DeleteLogoFile(oldLogoFileName);
+                }
+                catch (IOException)
+                {
+                    // تعذر حذف الملف القديم.
+                    // لا نلغي حفظ الشعار الجديد بسبب ذلك.
+                }
             }
         }
         catch
         {
-            // إذا فشل تحديث الإعدادات نحذف الملف الجديد
-            // حتى لا نترك ملفات شعارات غير مستخدمة.
-            if (newLogoPath is not null &&
+            if (!settingsSaved &&
+                newLogoPath is not null &&
                 File.Exists(newLogoPath))
             {
                 File.Delete(newLogoPath);
