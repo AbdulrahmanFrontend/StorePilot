@@ -1,7 +1,9 @@
 using Serilog;
 using StorePilot.Api.ExceptionHandling;
+using StorePilot.Application.Intefaces;
 using StorePilot.Infrastructure;
 using StorePilot.Infrastructure.Data;
+using StorePilot.Infrastructure.Settings;
 using StorePilot.Infrastructure.Storage;
 
 try
@@ -37,6 +39,7 @@ try
     builder.Services.AddOpenApi();
 
     builder.Services.AddSingleton(appDataPaths);
+    builder.Services.AddSingleton<IStoreSettingsService, JsonStoreSettingsService>();
 
     builder.Services.AddInfrastructure(
         appDataPaths.DatabasePath);
@@ -59,6 +62,7 @@ try
 
         await initializer.InitializeAsync();
     }
+    app.UseStaticFiles();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
