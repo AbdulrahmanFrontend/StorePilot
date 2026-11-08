@@ -10,7 +10,7 @@ public sealed class AppDataPaths
 
     public string SettingsDirectory { get; }
 
-    public string AssetsDirectory { get; }
+    public string BrandingDirectory { get; }
 
     public string BackupsDirectory { get; }
 
@@ -28,7 +28,7 @@ public sealed class AppDataPaths
         DataDirectory = Path.Combine(RootPath, "Data");
         LogsDirectory = Path.Combine(RootPath, "Logs");
         SettingsDirectory = Path.Combine(RootPath, "Settings");
-        AssetsDirectory = Path.Combine(RootPath, "Assets");
+        BrandingDirectory = Path.Combine(RootPath, "Assets");
         BackupsDirectory = Path.Combine(
             Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), 
@@ -51,7 +51,7 @@ public sealed class AppDataPaths
         Directory.CreateDirectory(DataDirectory);
         Directory.CreateDirectory(LogsDirectory);
         Directory.CreateDirectory(SettingsDirectory);
-        Directory.CreateDirectory(AssetsDirectory);
+        Directory.CreateDirectory(BrandingDirectory);
         Directory.CreateDirectory(BackupsDirectory);
     }
 }
