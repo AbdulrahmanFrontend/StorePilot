@@ -2,9 +2,9 @@
 
 internal sealed class StoreSettingsFile
 {
-    public string ShopName { get; set; } = null!;
+    public string ShopName { get; set; } = string.Empty;
 
-    public string OwnerName { get; set; } = null!;
+    public string OwnerName { get; set; } = string.Empty;
 
     public string? LogoFileName { get; set; }
 

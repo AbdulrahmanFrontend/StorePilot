@@ -1,4 +1,5 @@
-﻿using StorePilot.Application.Dtos.Settings;
+﻿using Microsoft.Extensions.Logging;
+using StorePilot.Application.Dtos.Settings;
 using StorePilot.Application.Intefaces;
 using StorePilot.Infrastructure.Storage;
 using System.Text.Json;
@@ -6,7 +7,8 @@ using System.Text.Json;
 namespace StorePilot.Infrastructure.Settings;
 
 public sealed class JsonStoreSettingsService(
-    AppDataPaths appDataPaths) : IStoreSettingsService
+    AppDataPaths appDataPaths,
+    ILogger<JsonStoreSettingsService> logger) : IStoreSettingsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -72,6 +74,8 @@ public sealed class JsonStoreSettingsService(
             settings.UpdatedAtUtc = DateTime.UtcNow;
 
             await WriteAsync(settings, cancellationToken);
+
+            logger.LogInformation("Store settings updated.");
         }
         finally
         {
@@ -119,20 +123,48 @@ public sealed class JsonStoreSettingsService(
                 {
                     DeleteLogoFile(oldLogoFileName);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
-                    // تعذر حذف الملف القديم.
-                    // لا نلغي حفظ الشعار الجديد بسبب ذلك.
+                    logger.LogWarning(
+                        ex,
+                        "Failed to delete the previous logo file: {LogoFileName}",
+                        oldLogoFileName);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    logger.LogWarning(
+                        ex,
+                        "Access denied while deleting the previous logo file: {LogoFileName}",
+                        oldLogoFileName);
                 }
             }
+
+            logger.LogInformation(
+                "Store logo updated: NewLogoFileName = '{NewLogoFileName}'",
+                newLogoFileName);
         }
         catch
         {
-            if (!settingsSaved &&
-                newLogoPath is not null &&
-                File.Exists(newLogoPath))
+            if (!settingsSaved && newLogoPath is not null)
             {
-                File.Delete(newLogoPath);
+                try
+                {
+                    File.Delete(newLogoPath);
+                }
+                catch (IOException ex)
+                {
+                    logger.LogWarning(
+                        ex,
+                        "Failed to clean up the new logo file after an unsuccessful settings save: {LogoFileName}",
+                        Path.GetFileName(newLogoPath));
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    logger.LogWarning(
+                        ex,
+                        "Access denied while cleaning up the new logo file: {LogoFileName}",
+                        Path.GetFileName(newLogoPath));
+                }
             }
 
             throw;
@@ -153,16 +185,12 @@ public sealed class JsonStoreSettingsService(
             var settings = await ReadAsync(cancellationToken);
 
             if (string.IsNullOrWhiteSpace(settings.LogoFileName))
-            {
                 return null;
-            }
 
             var path = GetLogoPath(settings.LogoFileName);
 
             if (!File.Exists(path))
-            {
                 return null;
-            }
 
             var content = await File.ReadAllBytesAsync(
                 path,
@@ -193,16 +221,34 @@ public sealed class JsonStoreSettingsService(
             var oldLogoFileName = settings.LogoFileName;
 
             if (string.IsNullOrWhiteSpace(oldLogoFileName))
-            {
                 return;
-            }
 
             settings.LogoFileName = null;
             settings.UpdatedAtUtc = DateTime.UtcNow;
 
             await WriteAsync(settings, cancellationToken);
 
-            DeleteLogoFile(oldLogoFileName);
+            try
+            {
+                DeleteLogoFile(oldLogoFileName);
+            }
+            catch (IOException ex)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Failed to delete the logo file after removing its reference from store settings: {LogoFileName}",
+                    oldLogoFileName);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Access denied while deleting the logo file: {LogoFileName}",
+                    oldLogoFileName);
+            }
+
+            logger.LogInformation(
+                "Store logo removed successfully.");
         }
         finally
         {
@@ -214,9 +260,7 @@ public sealed class JsonStoreSettingsService(
         CancellationToken cancellationToken)
     {
         if (!File.Exists(_settingsFilePath))
-        {
             return new StoreSettingsFile();
-        }
 
         await using var stream = new FileStream(
             _settingsFilePath,
@@ -231,6 +275,23 @@ public sealed class JsonStoreSettingsService(
                    JsonOptions,
                    cancellationToken)
                ?? new StoreSettingsFile();
+    }
+
+    private void TryDeleteFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+        catch (Exception ex) when (
+            ex is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(
+                ex,
+                "Failed to delete temporary file: {FileName}",
+                Path.GetFileName(path));
+        }
     }
 
     private async Task WriteAsync(
@@ -267,10 +328,7 @@ public sealed class JsonStoreSettingsService(
         }
         finally
         {
-            if (File.Exists(temporaryPath))
-            {
-                File.Delete(temporaryPath);
-            }
+            TryDeleteFile(temporaryPath);
         }
     }
 
