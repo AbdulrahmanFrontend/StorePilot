@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useStartup } from './features/startup/hooks/useStartup'
-import SplashScreen from './features/startup/components/splashScreen'
+import SplashScreen from './features/startup/components/SplashScreen'
+import SetupPage from './features/settings/pages/SetupPage'
 
 import './app.css'
 
@@ -48,10 +49,9 @@ function App() {
   // شاشة مؤقتة حتى ننفذ الإعداد الأولي.
   if (screen === 'setup') {
     return (
-      <main>
-        <h1>StorePilot Setup</h1>
-        <p>ستظهر هنا شاشة الإعداد الأولي.</p>
-      </main>
+      <SetupPage
+        onCompleted={() => setScreen('dashboard')}
+      />
     )
   }
 
