@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useStartup } from './features/startup/hooks/useStartup'
-import SplashScreen from './features/startup/components/SplashScreen'
+import SplashScreen from './features/startup/components/splashScreen'
 
 import './app.css'
 
