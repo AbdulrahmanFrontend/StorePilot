@@ -103,30 +103,30 @@ function SetupPage({ onCompleted }: SetupPageProps) {
   // Validate the form before sending any requests.
   function validateForm(): string | null {
     if (!shopName.trim()) {
-      return 'Please enter the shop name.'
+      return 'من فضلك أدخل اسم اسم المحل.'
     }
 
     if (!ownerName.trim()) {
-      return 'Please enter the owner name.'
+      return 'من فضلك ادخل اسم مالك المحل.'
     }
 
     if (shopName.trim().length > 100) {
-      return 'Shop name cannot exceed 100 characters.'
+      return 'اسم المحل لا ينبغي أن يتعدى ال 100 حرف.'
     }
 
     if (ownerName.trim().length > 100) {
-      return 'Owner name cannot exceed 100 characters.'
+      return 'اسم مالك المحل لا ينبغي أن يتعدى ال 100 حرف.'
     }
 
     if (logoFile) {
       const allowedTypes = ['image/png', 'image/jpeg', 'image/webp']
 
       if (!allowedTypes.includes(logoFile.type)) {
-        return 'Please select a PNG, JPG, or WebP image.'
+        return 'من فضلك اختر صورا من نوع png, jpeg, webp.'
       }
 
       if (logoFile.size > 2 * 1024 * 1024) {
-        return 'Logo size cannot exceed 2 MB.'
+        return 'حجم اللوجو لا ينبغي أن يتعدى ال 2 MB.'
       }
     }
 

@@ -1,4 +1,3 @@
-
 const API_BASE_URL = '/api'
 
 type RequestOptions = {
@@ -61,7 +60,7 @@ async function getErrorMessage(response: Response): Promise<string> {
     // Ignore response parsing errors and use the fallback message.
   }
 
-  return `Request failed with status code ${response.status}.`
+  return `فشل الطلب (${response.status} status code).`
 }
 
 // Send an HTTP request and handle its response.
@@ -122,37 +121,45 @@ export function get<T>(
 export function post<T>(
   endpoint: string,
   body: unknown,
+  signal?: AbortSignal
 ): Promise<T> {
   return request<T>(endpoint, {
     method: 'POST',
     body,
+    signal
   })
 }
 
 export function put<T>(
   endpoint: string,
   body: unknown,
+  signal?: AbortSignal
 ): Promise<T> {
   return request<T>(endpoint, {
     method: 'PUT',
     body,
+    signal
   })
 }
 
 export function postForm<T>(
   endpoint: string,
   formData: FormData,
+  signal?: AbortSignal
 ): Promise<T> {
   return request<T>(endpoint, {
     method: 'POST',
     body: formData,
+    signal
   })
 }
 
 export function remove<T = void>(
   endpoint: string,
+  signal?: AbortSignal
 ): Promise<T> {
   return request<T>(endpoint, {
     method: 'DELETE',
+    signal
   })
 }

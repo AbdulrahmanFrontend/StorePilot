@@ -1,4 +1,3 @@
-
 import {
   get,
   put,
@@ -15,27 +14,28 @@ const SETTINGS_ENDPOINT = '/system/settings'
 const LOGO_ENDPOINT = '/system/settings/logo'
 
 // Retrieve the current store settings.
-export function getStoreSettings(): Promise<StoreSettings> {
-  return get<StoreSettings>(SETTINGS_ENDPOINT)
+export function getStoreSettings(signal?: AbortSignal): Promise<StoreSettings> {
+  return get<StoreSettings>(SETTINGS_ENDPOINT, signal)
 }
 
 // Update the store name and owner name.
 export function updateStoreSettings(
   data: UpdateStoreSettingsRequest,
+  signal?: AbortSignal
 ): Promise<StoreSettings> {
-  return put<StoreSettings>(SETTINGS_ENDPOINT, data)
+  return put<StoreSettings>(SETTINGS_ENDPOINT, data, signal)
 }
 
 // Upload a new store logo.
-export function uploadStoreLogo(file: File): Promise<void> {
+export function uploadStoreLogo(file: File, signal?: AbortSignal): Promise<void> {
   const formData = new FormData()
 
   formData.append('file', file)
 
-  return postForm<void>(LOGO_ENDPOINT, formData)
+  return postForm<void>(LOGO_ENDPOINT, formData, signal)
 }
 
 // Delete the current store logo.
-export function deleteStoreLogo(): Promise<void> {
-  return remove<void>(LOGO_ENDPOINT)
+export function deleteStoreLogo(signal?: AbortSignal): Promise<void> {
+  return remove<void>(LOGO_ENDPOINT, signal)
 }

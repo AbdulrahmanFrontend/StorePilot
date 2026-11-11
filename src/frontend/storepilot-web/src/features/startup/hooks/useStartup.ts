@@ -67,7 +67,7 @@ export function useStartup() {
         if (!isActive) return
 
         if (health.status !== 'Ready') {
-          throw new Error('API is not ready')
+          throw new Error('API ليس جاهزا')
         }
 
         // المرحلة الثانية: معرفة حالة الإعداد الأولي.
