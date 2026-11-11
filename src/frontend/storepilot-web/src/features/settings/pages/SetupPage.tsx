@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, SubmitEvent } from 'react'
 
 import {
   getStoreSettings,
   updateStoreSettings,
   uploadStoreLogo,
+  deleteStoreLogo
 } from '../api/settingsApi'
 
 import { ApiError } from '../../../shared/api/apiClient'
@@ -37,8 +38,12 @@ function SetupPage({ onCompleted }: SetupPageProps) {
   // Temporary URL used to preview the selected logo.
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
+  const [shouldDeleteLogo, setShouldDeleteLogo] = useState(false)
+
   // Used to retry loading settings after a failed request.
   const [loadRetryKey, setLoadRetryKey] = useState(0)
+
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   // Release the temporary URL when it changes or the component unmounts.
   useEffect(() => {
@@ -95,6 +100,28 @@ function SetupPage({ onCompleted }: SetupPageProps) {
 
     setLogoFile(file)
     setPreviewUrl(file ? URL.createObjectURL(file) : null)
+
+    // Selecting a new logo cancels any pending deletion.
+    setShouldDeleteLogo(false)
+
+    setError(null)
+    setMessage(null)
+  }
+
+  function handleRemoveLogo() {
+    // Remove the selected file from the current UI state.
+    setLogoFile(null)
+
+    // Remove the temporary preview.
+    setPreviewUrl(null)
+
+    // Mark the existing logo for deletion when the form is saved.
+    setShouldDeleteLogo(Boolean(existingLogoUrl))
+
+    // Clear the native file input.
+    if (logoInputRef.current) {
+      logoInputRef.current.value = ''
+    }
 
     setError(null)
     setMessage(null)
@@ -156,23 +183,28 @@ function SetupPage({ onCompleted }: SetupPageProps) {
         ownerName: ownerName.trim(),
       })
 
-      // Step 2: Upload the logo only when a new file was selected.
-      if (logoFile) {
-        try {
+      // Step 2: Apply the requested logo change.
+      try {
+        if (logoFile) {
+          // Upload the new logo.
           await uploadStoreLogo(logoFile)
-        } catch (err) {
-          setMessage(
-            'Store information was saved, but the logo could not be uploaded.',
-          )
-
-          setError(
-            err instanceof Error
-              ? err.message
-              : 'Logo upload failed.',
-          )
-
-          return
+        } else if (shouldDeleteLogo) {
+          // Delete the existing logo.
+          await deleteStoreLogo()
         }
+      } catch (err) {
+          // Store information was saved, but the logo operation failed.
+          setMessage(
+            'Store information was saved, but the logo could not be updated.',
+        )
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Logo update failed.',
+        )
+
+        return
       }
 
       // Notify the parent component that setup has completed.
@@ -193,7 +225,8 @@ function SetupPage({ onCompleted }: SetupPageProps) {
   }
 
   // Prefer the newly selected logo over the existing server logo.
-  const displayedLogoUrl = previewUrl ?? existingLogoUrl
+  const displayedLogoUrl = previewUrl ??
+    (shouldDeleteLogo ? null : existingLogoUrl)
 
   if (isLoading) {
     return (
@@ -274,6 +307,7 @@ function SetupPage({ onCompleted }: SetupPageProps) {
             </label>
 
             <input
+              ref={logoInputRef}
               id="storeLogo"
               type="file"
               accept="image/png,image/jpeg,image/webp"
@@ -288,16 +322,33 @@ function SetupPage({ onCompleted }: SetupPageProps) {
 
           <div className="logo-preview">
             {displayedLogoUrl ? (
-              <img
-                src={displayedLogoUrl}
-                alt="Store logo preview"
-              />
+              <>
+                <img
+                  src={displayedLogoUrl}
+                  alt="Store logo preview"
+                />
+
+                <button
+                  type="button"
+                  className="remove-logo-button"
+                  onClick={handleRemoveLogo}
+                  disabled={isSaving}
+                >
+                  إزالة الشعار
+                </button>
+              </>
             ) : (
               <div className="logo-placeholder">
                 لا يوجد شعار
               </div>
             )}
           </div>
+
+          {shouldDeleteLogo && (
+            <p className="field-hint">
+              سيتم حذف الشعار عند حفظ الإعدادات.
+            </p>
+          )}
 
           {message && (
             <div className="setup-message">

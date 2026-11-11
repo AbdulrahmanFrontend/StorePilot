@@ -117,6 +117,25 @@
   font-size: var(--font-size-sm);
 }
 
+.remove-logo-button {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-danger);
+  cursor: pointer;
+}
+
+.remove-logo-button:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.remove-logo-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .setup-submit {
   min-height: 46px;
   border: none;
