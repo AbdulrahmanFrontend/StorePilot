@@ -9,12 +9,12 @@ export type SetupStatusResponse = {
 }
 
 export function checkHealth(signal?: AbortSignal) {
-  return get<HealthResponse>('/system/health', { signal })
+  return get<HealthResponse>('/system/health', signal)
 }
 
 export function getSetupStatus(signal?: AbortSignal) {
   return get<SetupStatusResponse>(
     '/system/setup-status',
-    { signal },
+    signal,
   )
 }

@@ -46,8 +46,6 @@ try
 
     builder.Services.AddScoped<DatabaseInitializer>();
 
-    builder.Services.AddSwaggerGen();
-
     var app = builder.Build();
 
     app.UseExceptionHandler();
@@ -72,7 +70,7 @@ try
 
     app.UseHttpMethodOverride();
 
-    app.UseAuthorization();
+    //app.UseAuthorization();
 
     app.MapControllers();
 
