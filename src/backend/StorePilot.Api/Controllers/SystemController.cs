@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using StorePilot.Application.Intefaces;
 using StorePilot.Infrastructure.Data;
 
 namespace StorePilot.Api.Controllers;
@@ -6,14 +7,13 @@ namespace StorePilot.Api.Controllers;
 [ApiController]
 [Route("api/system")]
 public sealed class SystemController(
-    StorePilotDbContext dbContext) : ControllerBase
+    StorePilotDbContext dbContext,
+    IStoreSettingsService settingsService) : ControllerBase
 {
     [HttpGet("health")]
-    public async Task<IActionResult> Health(
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Health(CancellationToken cancellationToken)
     {
-        var canConnect = await dbContext.Database
-            .CanConnectAsync(cancellationToken);
+        var canConnect = await dbContext.Database.CanConnectAsync(cancellationToken);
 
         if (!canConnect)
         {
@@ -23,5 +23,18 @@ public sealed class SystemController(
         }
 
         return Ok(new { status = "Ready" });
+    }
+
+    // GET: api/system/setup-status
+    [HttpGet("setup-status")]
+    public async Task<IActionResult> GetSetupStatus(CancellationToken cancellationToken)
+    {
+        var isSetupCompleted = await settingsService.IsSetupCompletedAsync(
+            cancellationToken);
+
+        return Ok(new
+        {
+            isSetupCompleted
+        });
     }
 }

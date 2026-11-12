@@ -28,8 +28,4 @@
     <ProjectReference Include="..\StorePilot.Infrastructure\StorePilot.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="System\" />
-  </ItemGroup>
-
 </Project>
