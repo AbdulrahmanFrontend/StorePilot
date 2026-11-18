@@ -27,12 +27,12 @@ export function updateStoreSettings(
 }
 
 // Upload a new store logo.
-export function uploadStoreLogo(file: File, signal?: AbortSignal): Promise<void> {
+export function uploadStoreLogo(file: File, signal?: AbortSignal): Promise<StoreSettings> {
   const formData = new FormData()
 
   formData.append('file', file)
 
-  return postForm<void>(LOGO_ENDPOINT, formData, signal)
+  return postForm<StoreSettings>(LOGO_ENDPOINT, formData, signal)
 }
 
 // Delete the current store logo.
