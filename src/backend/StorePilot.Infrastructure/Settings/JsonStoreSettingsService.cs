@@ -341,7 +341,7 @@ public sealed class JsonStoreSettingsService(
         return new StoreSettingsDto(
             settings.ShopName,
             settings.OwnerName,
-            hasLogo ? "/api/system/logo" : null,
+            hasLogo ? "/api/system/settings/logo" : null,
             IsSetupCompleted(settings));
     }
 
