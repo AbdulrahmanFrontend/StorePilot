@@ -1,6 +1,6 @@
 ﻿using StorePilot.Application.Dtos.Settings;
 
-namespace StorePilot.Application.Intefaces;
+namespace StorePilot.Application.Interfaces;
 
 public interface IStoreSettingsService
 {

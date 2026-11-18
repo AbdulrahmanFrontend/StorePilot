@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using StorePilot.Application.Dtos.Settings;
-using StorePilot.Application.Intefaces;
+using StorePilot.Application.Interfaces;
 using StorePilot.Infrastructure.Storage;
 using System.Text.Json;
 
