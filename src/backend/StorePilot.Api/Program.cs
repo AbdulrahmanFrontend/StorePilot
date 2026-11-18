@@ -1,6 +1,6 @@
 using Serilog;
 using StorePilot.Api.ExceptionHandling;
-using StorePilot.Application.Intefaces;
+using StorePilot.Application.Interfaces;
 using StorePilot.Infrastructure;
 using StorePilot.Infrastructure.Data;
 using StorePilot.Infrastructure.Settings;

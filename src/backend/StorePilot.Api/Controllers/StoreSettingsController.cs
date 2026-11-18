@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StorePilot.Api.Models;
 using StorePilot.Application.Dtos.Settings;
-using StorePilot.Application.Intefaces;
+using StorePilot.Application.Interfaces;
 
 namespace StorePilot.Api.Controllers;
 

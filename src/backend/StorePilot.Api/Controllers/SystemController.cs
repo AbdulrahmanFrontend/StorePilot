@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StorePilot.Application.Intefaces;
+using StorePilot.Application.Interfaces;
 using StorePilot.Infrastructure.Data;
 
 namespace StorePilot.Api.Controllers;
