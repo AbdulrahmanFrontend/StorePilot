@@ -3,7 +3,7 @@ import { useStartup } from './features/startup/hooks/useStartup'
 import SplashScreen from './features/startup/components/SplashScreen'
 import SetupPage from './features/settings/pages/SetupPage'
 
-import './app.css'
+import './App.css'
 
 // الشاشات الممكن عرضها في التطبيق.
 type AppScreen = 'splash' | 'setup' | 'dashboard'
