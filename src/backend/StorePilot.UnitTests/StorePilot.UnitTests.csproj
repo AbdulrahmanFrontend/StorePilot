@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\StorePilot.Application\StorePilot.Application.csproj" />
     <ProjectReference Include="..\StorePilot.Domain\StorePilot.Domain.csproj" />
+    <ProjectReference Include="..\StorePilot.Infrastructure\StorePilot.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
