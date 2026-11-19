@@ -18,21 +18,31 @@ public sealed class AppDataPaths
 
     public string SettingsFilePath { get; }
 
-    public AppDataPaths()
+    public AppDataPaths(
+        string? rootPath = null,
+        string? backupsDirectory = null)
     {
-        RootPath = Path.Combine(
+        // Use the custom root path when provided.
+        // Otherwise, use the normal application data directory.
+        RootPath = rootPath ?? Path.Combine(
             Environment.GetFolderPath(
                 Environment.SpecialFolder.LocalApplicationData),
             "StorePilot");
 
         DataDirectory = Path.Combine(RootPath, "Data");
+
         LogsDirectory = Path.Combine(RootPath, "Logs");
+
         SettingsDirectory = Path.Combine(RootPath, "Settings");
+
         BrandingDirectory = Path.Combine(RootPath, "Assets");
-        BackupsDirectory = Path.Combine(
+
+        // Allow tests to use an isolated backup directory.
+        // The production application keeps its existing default path.
+        BackupsDirectory = backupsDirectory ?? Path.Combine(
             Environment.GetFolderPath(
-                Environment.SpecialFolder.MyDocuments), 
-            "StorePilot", 
+                Environment.SpecialFolder.MyDocuments),
+            "StorePilot",
             "Backups");
 
         DatabasePath = Path.Combine(
@@ -49,9 +59,13 @@ public sealed class AppDataPaths
     private void CreateDirectories()
     {
         Directory.CreateDirectory(DataDirectory);
+
         Directory.CreateDirectory(LogsDirectory);
+
         Directory.CreateDirectory(SettingsDirectory);
+
         Directory.CreateDirectory(BrandingDirectory);
+
         Directory.CreateDirectory(BackupsDirectory);
     }
 }
