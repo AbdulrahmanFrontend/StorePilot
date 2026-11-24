@@ -1,0 +1,303 @@
+# StorePilot V2 - Database Design
+
+## 1. General Principles
+
+- SQLite is the database engine.
+- EF Core Code First is used.
+- EF Core migrations are the source of schema evolution.
+- Foreign keys and database constraints must protect important relationships.
+- Historical documents must preserve product information through snapshots.
+- Financial amounts must not use floating-point storage.
+- Posted documents must not be physically deleted.
+- Stock and account changes must be transactional.
+
+## 2. Core Tables
+
+### Reference Data
+
+#### Units
+Purpose:
+- Defines product measurement units.
+
+Proposed columns:
+- Id
+- Name
+
+Rules:
+- Name is required.
+- Name is unique.
+- A unit referenced by products cannot be deleted.
+- No Active, CreatedAt, or Notes fields in V2.
+
+#### Groups
+Purpose:
+- Defines product categories.
+
+Proposed columns:
+- Id
+- Name
+
+Rules:
+- Name is required.
+- Name is unique.
+- A group referenced by products cannot be deleted.
+- No Active, CreatedAt, or Notes fields in V2.
+
+#### PaymentMethods
+Purpose:
+- Defines supported payment methods.
+
+V2 decision:
+- If the shop only uses cash, do not create this table yet.
+- If multiple payment methods are required, use a lookup table seeded with the supported methods.
+- No CRUD interface is required for fixed payment methods.
+- Do not delete a payment method referenced by historical transactions.
+
+### People and Customers
+
+#### People
+Purpose:
+- Stores shared person identity and contact information.
+- Allows a person to become both a customer and a supplier in a future version.
+
+Proposed columns:
+- Id
+- Name
+- Phone (nullable)
+- Address (nullable)
+
+Rules:
+- Name is unique.
+- Phone is assumed to be unique.
+- People records are created and managed through customer workflows in V2.
+
+If supplier reuse is not needed, this table may be removed and customer information can be stored directly in Customers.
+
+#### Customers
+Purpose:
+- Defines a person as a customer with an account relationship.
+
+Proposed columns:
+- Id
+- PersonId (unique FK)
+
+Rules:
+- A person can have at most one customer record.
+- A customer can have many sales invoices, receipts, returns, and account entries.
+- Do not store derived balances or sales totals as the source of truth.
+
+### Products
+
+#### Products
+Purpose:
+- Stores product catalog and current stock information.
+
+Proposed columns:
+- Id
+- Name
+- Code (nullable)
+- SalePrice
+- PurchasePrice
+- MinQuantity
+- CurrentQuantity
+- UnitId
+- GroupId
+- CreatedAt
+- IsActive
+- Notes (nullable)
+
+Rules:
+- Product name uniqueness must be confirmed against real catalog data.
+- Product code must be unique when supplied.
+- Referenced units and groups cannot be deleted.
+- Inactive products cannot be used in new documents.
+- Historical invoice lines must preserve product name, code, unit, and price snapshots.
+
+### Sales
+
+#### SaleInvoices
+Purpose:
+- Stores sales invoice headers.
+
+Important fields:
+- Id
+- InvoiceNumber
+- InvoiceDate
+- CustomerId (nullable)
+- Status
+- TotalAmount
+- CreatedAt
+- Notes (nullable)
+
+Rules:
+- CustomerId may be null for anonymous cash sales.
+- Credit sales require a registered customer.
+- Anonymous sales must be fully paid.
+- Posted invoices cannot be silently edited or deleted.
+
+#### SaleInvoiceItems
+Purpose:
+- Stores invoice lines.
+
+Important fields:
+- Id
+- SaleInvoiceId
+- ProductId
+- ProductNameSnapshot
+- UnitNameSnapshot
+- Quantity
+- UnitPrice
+- LineTotal
+
+Rules:
+- Store historical product and unit snapshots.
+- Validate quantity and price.
+- Prevent invalid duplicate or inconsistent invoice lines according to the selected invoice policy.
+
+#### SaleInvoicePayments
+Purpose:
+- Records payments made during invoice creation.
+
+Rules:
+- Supports partial payment for registered customer invoices.
+- Supports full payment for anonymous cash invoices.
+- Each payment produces the appropriate cash movement when paid in cash.
+- Payments on registered customer invoices affect the customer ledger.
+- This is not the same as collecting an existing customer debt.
+
+### Customer Account
+
+#### CustomerReceipts
+Purpose:
+- Records payments collected against an existing customer account balance.
+
+Rules:
+- Does not require a SaleInvoiceId.
+- Requires a registered customer.
+- Must not exceed the outstanding balance under the V2 policy.
+- Generates a customer ledger credit entry.
+- Generates a cash movement only when the payment is received in cash.
+
+#### CustomerAccountEntries
+Purpose:
+- The official customer subledger.
+
+Proposed fields:
+- Id
+- CustomerId
+- EntryDate
+- DebitAmount
+- CreditAmount
+- Description
+- CreatedAt
+- Source relationship
+
+Rules:
+- Debit increases the amount owed by the customer.
+- Credit decreases the amount owed by the customer.
+- Balance = Sum(DebitAmount) - Sum(CreditAmount).
+- Positive balance means the customer owes the shop.
+- No direct CRUD operations.
+- Entries are generated by business operations.
+- Each entry must have a valid source relationship.
+- Exactly one debit or credit amount must be positive.
+
+#### CustomerOpeningBalances
+Purpose:
+- Records customer balances brought into the system.
+
+Rules:
+- Required only if existing customer debts must be migrated.
+- Each opening balance must generate a ledger entry.
+- Opening balances must not be edited casually after normal operations begin.
+
+### Returns
+
+#### SaleReturns
+Purpose:
+- Stores sales return documents.
+
+Rules:
+- A return must reference the original sale invoice in V2.
+- Returned quantities must not exceed the remaining returnable quantities.
+- A return increases stock.
+- A return reduces the customer's outstanding balance where applicable.
+- Anonymous returns do not create customer ledger entries.
+
+#### SaleReturnItems
+Purpose:
+- Stores returned invoice lines.
+
+Rules:
+- Must reference original sale invoice items.
+- Return quantity and value must be validated against the original sale and previous returns.
+
+#### Refunds
+Purpose:
+- Records money actually returned to the customer.
+- Must be associated with the relevant sales return.
+- Generates a cash outflow when paid in cash.
+- Does not create a customer credit balance that is retained for future purchases in V2.
+
+The refund representation may be a simple field/relationship on SaleReturns if only one refund per return is supported. A separate child table is justified only if multiple or partial refunds are required.
+
+### Inventory and Cash
+
+#### StockTransactions
+Purpose:
+- Records stock inflows and outflows.
+
+Rules:
+- Sales create stock outflows.
+- Returns create stock inflows.
+- Current product quantity is updated in the same database transaction.
+- No direct arbitrary CRUD in V2.
+
+#### CashTransactions
+Purpose:
+- Records actual cash inflows and outflows.
+
+Rules:
+- Only actual cash movements are recorded as cash.
+- Non-cash payment methods must not be mislabeled as physical cash.
+- Movements are generated by the relevant business operations.
+- No generic unrestricted CRUD in V2.
+
+### Quotations
+
+#### Quotations and QuotationItems
+Purpose:
+- Store quotations before they become sales invoices.
+
+Rules:
+- No stock, cash, or customer-ledger effect before conversion.
+- Converted quotations create independent sales invoices.
+- Preserve product and price snapshots.
+- Revalidate products and business rules during conversion.
+
+## 3. Deferred Tables
+
+Do not create these tables in V1 unless requirements change:
+
+- Suppliers
+- SupplierAccountEntries
+- PurchaseInvoices
+- PurchaseInvoiceItems
+- PurchaseReturns
+- PurchaseReturnItems
+- SupplierPayments
+- CustomerPaymentAllocations
+- FinancialAccounts
+- Warehouses
+- Branches
+- Users and Roles
+
+## 4. Important Technical Constraints
+
+- Use restrictive deletion for historical references.
+- Use unique indexes for business identifiers.
+- Use check constraints for valid amounts and quantities.
+- Use indexes for foreign keys and frequent lookups.
+- Use integer minor currency units for stored money.
+- Use explicit decimal calculations and rounding rules in the application.
+- Use database transactions for posting operations.
