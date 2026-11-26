@@ -47,12 +47,13 @@ The order is intentional: Units and Groups are the next feature, followed by Peo
 - Customer balance is derived from its account entries, not stored as an independently editable total.
 
 ### Returns
-- Every return references the original invoice and its original item rows.
-- The invoice determines whether the return belongs to a registered customer or is anonymous.
+- Every return line references its original invoice item.
+- One return may combine items from several invoices belonging to the same registered customer, or several anonymous invoices; do not mix different customers or anonymous and registered invoices.
+- The original invoice determines customer identity; do not create a customer for an anonymous return.
 - A registered customer's return reduces their outstanding debt first. Any amount left after the debt reaches zero is refunded immediately.
 - If the customer has no debt, refund the full return value immediately.
 - An anonymous return is verified using the original invoice and refunded; no customer is created.
-- Do not allow returned quantity to exceed the remaining returnable quantity.
+- Do not allow returned quantity to exceed the remaining returnable quantity for each original invoice item.
 
 ### Purchases and suppliers
 - Purchase invoices and their items increase stock.

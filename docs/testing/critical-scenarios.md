@@ -37,8 +37,9 @@ Implement tests alongside each feature. These are business checks, not a require
 - [ ] Customer balance and statement are derived consistently from ledger entries.
 
 ## Sales returns
-- [ ] Return must reference the original invoice and item.
-- [ ] Return inherits the customer from the original invoice.
+- [ ] Every return line references an original invoice item.
+- [ ] One return can combine invoice items from several invoices for the same customer.
+- [ ] A return cannot mix different customers or anonymous and registered invoices.
 - [ ] Anonymous return creates no customer or customer ledger entry.
 - [ ] Return quantity cannot exceed the remaining returnable quantity.
 - [ ] Return value uses original invoice line values.

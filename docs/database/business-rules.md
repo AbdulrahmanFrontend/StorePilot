@@ -37,7 +37,7 @@ Balance = total debit - total credit.
 - Anonymous invoice: verify by invoice, restore stock, and refund the return value. Do not create a customer.
 - Registered customer: apply the return value against the customer's current debt first. Refund only the excess immediately. If there is no debt, refund the full amount.
 - Example: debt 100 and return 30 => debt becomes 70, no cash refund. Debt 10 and return 30 => debt becomes zero and 20 is refunded. Debt zero and return 30 => refund 30.
-- Total returned quantity for an invoice item cannot exceed its sold quantity after earlier returns.
+- Total returned quantity for each original invoice item cannot exceed its sold quantity after earlier returns.
 - Calculate the return using the original line's stored price/discount values, not today's product price.
 - Return, stock, ledger, and refund/cash effects must succeed or fail together.
 

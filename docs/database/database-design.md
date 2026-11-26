@@ -97,11 +97,12 @@ Add only if the shop needs to migrate existing debts. Each opening balance must 
 ## 5. Sales returns and refunds
 
 ### SaleReturns and SaleReturnItems
-- SaleReturns references the original SaleInvoice.
-- Each item references the original SaleInvoiceItem.
-- Customer identity is inherited from the invoice; anonymous sales remain anonymous.
-- Record return date, reason, quantities, and calculated return value.
-- Increase stock and reduce customer debt atomically.
+- SaleReturns stores return date, reason, total return value, refund amount, and payment method when money is actually refunded.
+- Each SaleReturnItem references one original SaleInvoiceItem; the original invoice is reached through that item.
+- One return document may include lines from several invoices only if all invoices belong to the same registered customer, or all are anonymous. Validate this rule when posting the return.
+- Do not store a separately selected CustomerId on the return; derive the customer from its source invoices.
+- Each return line stores the original price/value snapshot needed to calculate the refund.
+- Increase stock and apply the customer debt offset atomically.
 
 ### Refund
 For the first workflow, record the actual refund amount and payment method on the return (or in a one-to-one child table if the implementation needs it). A separate multi-refund table is not needed unless partial/multiple refunds become a real requirement. Cash refunds generate a CashTransactions outflow.
