@@ -1,107 +1,82 @@
 # StorePilot V2 - Business Rules
 
-## 1. Sales
+## 1. Reference data and people
 
-### BR-SAL-001: Anonymous Cash Sale
-- A sale invoice may have no customer.
-- An anonymous sale must be fully paid before posting.
-- An anonymous sale does not create a customer account entry.
+- Units, Groups, and PaymentMethods are seeded/read-only lookup data. No CRUD endpoints or management screens.
+- A referenced lookup record cannot be deleted.
+- People stores a required name and optional phone/address. Do not make name or phone unique by default.
+- Customers and Suppliers are role records linked to People. A person may have both roles.
 
-### BR-SAL-002: Registered Customer Sale
-- A customer may be selected for either cash or credit sales.
-- Selecting a customer is optional for fully paid cash sales.
-- A credit sale must have a registered customer.
+## 2. Sales
 
-### BR-SAL-003: Partial Payment
-- A registered customer invoice may be partially paid.
-- The unpaid amount becomes part of the customer's account balance.
-- The amount paid during invoice creation is recorded separately from later debt collections.
+- A sale may have no CustomerId only when it is fully paid at posting.
+- A credit sale requires a registered customer.
+- A registered customer may make a fully paid sale.
+- The sale records whether it was Immediate or Credit at the time it was posted; later payment must not rewrite that history.
+- In the first sales workflow, payment during sale creation is either the full amount or zero (credit). Partial payments are collected later.
+- A later CustomerReceipt belongs to a customer account, not to a particular invoice. It may be partial and must not exceed the customer's current debt.
+- No FIFO or invoice-level allocation in V2.
 
-### BR-SAL-004: Invoice Posting
-- Draft invoices may be edited.
-- Posting validates all invoice lines and business rules.
-- Posting updates stock and customer account records atomically.
-- A posted invoice cannot be silently edited or deleted.
-- Repeated posting must not duplicate stock or financial effects.
+## 3. Customer account
 
-## 2. Customer Accounts
+Balance = total debit - total credit.
+- Debit increases what the customer owes the shop.
+- Credit reduces what the customer owes.
+- Credit sale: debit.
+- Full payment recorded at the time of a registered-customer sale: matching credit.
+- Later receipt: credit.
+- Return value: credit up to the outstanding debt.
+- Any return amount exceeding the debt is refunded immediately and recorded as a refund/cash outflow; do not leave an unused customer credit balance.
+- A sale to an anonymous buyer creates no customer ledger entries.
+- Do not allow direct manual CRUD of ledger entries. Business operations generate them.
 
-### BR-CUS-001: Account Balance
-Balance = Total Debit - Total Credit.
+## 4. Sales returns
 
-- Positive: customer owes the shop.
-- Zero: account is settled.
-- Negative: shop owes the customer; retained credit balances are outside the normal V1 workflow.
+- A return must reference its original SaleInvoice and SaleInvoiceItems.
+- CustomerId is taken from the original invoice; it is not selected independently on the return.
+- Anonymous invoice: verify by invoice, restore stock, and refund the return value. Do not create a customer.
+- Registered customer: apply the return value against the customer's current debt first. Refund only the excess immediately. If there is no debt, refund the full amount.
+- Example: debt 100 and return 30 => debt becomes 70, no cash refund. Debt 10 and return 30 => debt becomes zero and 20 is refunded. Debt zero and return 30 => refund 30.
+- Total returned quantity for an invoice item cannot exceed its sold quantity after earlier returns.
+- Calculate the return using the original line's stored price/discount values, not today's product price.
+- Return, stock, ledger, and refund/cash effects must succeed or fail together.
 
-### BR-CUS-002: Customer Receipts
-- Receipts are independent of specific sales invoices.
-- The user selects a customer and enters the received amount.
-- The receipt reduces the customer's outstanding balance.
-- The amount must not exceed the outstanding balance under the V2 policy.
+## 5. Purchases and supplier accounts
 
-### BR-CUS-003: Opening Balances
-- Existing debts may be entered as opening balances.
-- Every opening balance must be represented in the customer ledger.
-- Opening balances must be entered through a controlled process.
+- PurchaseInvoices and PurchaseInvoiceItems record incoming stock.
+- Purchase type is Immediate or Credit. Credit purchase requires SupplierId and creates an amount owed to that supplier.
+- The initial Immediate workflow is paid in full at entry; do not add partial purchase payments yet.
+- A purchase return must reference the original purchase invoice and item, and cannot exceed the remaining returnable quantity.
+- A purchase return reduces what the shop owes the supplier. If the return exceeds the outstanding payable, record the remaining amount as supplier credit for later settlement; do not invent a cash refund.
+- Supplier payments against outstanding debt are a separate later feature and must not be tied to one invoice.
+- Keep supplier account entries generated by purchase/return/payment operations; no direct CRUD.
 
-## 3. Sales Returns
+## 6. Inventory and cash
 
-### BR-RET-001: Original Invoice
-- A return must reference the original sales invoice.
-- Returned items must reference original invoice items.
+- Opening stock is entered through a controlled stock receipt/adjustment operation.
+- Purchases increase stock; sales decrease it; sales returns increase it; purchase returns decrease it.
+- Reject a sale or purchase return that would make stock negative.
+- Keep a stock movement history and update current quantity in the same database transaction.
+- CashTransactions records actual cash movement only. Credit documents do not create cash movement.
+- Non-cash methods do not affect the physical cash drawer.
+- Immediate cash sale/purchase and actual cash refunds/payments create the corresponding cash movement.
+- No unrestricted CRUD for stock or cash transactions.
 
-### BR-RET-002: Returnable Quantity
-- Total returned quantity must not exceed the original sold quantity.
-- Previously returned quantities must be considered.
-- Validation must be performed within a database transaction.
+## 7. Document and data integrity
 
-### BR-RET-003: Return Value
-- Return value is calculated using the original sale line values and the approved return policy.
-- The return reduces outstanding customer debt first.
-- Any remaining refundable amount is returned to the customer.
-- V2 does not automatically retain return value as future customer credit.
+- Posted documents cannot be silently edited or deleted. Use a controlled return/cancellation/reversal with a reason.
+- Prevent duplicate posting and duplicate return processing.
+- Preserve product name, code, unit, and price snapshots on document items.
+- Use restrictive foreign keys for historical references.
+- Do not store customer/supplier balances or sales totals as editable source-of-truth fields.
+- Financial amounts must not use SQLite REAL/FLOAT. Use one consistent precise money representation and rounding policy; choose the implementation before financial features are coded.
+- Use database constraints and application validation for positive quantities/amounts, valid sale types, and valid document relationships.
+- Use one database transaction for each operation that changes a document, stock, account, or cash balance.
 
-### BR-RET-004: Anonymous Return
-- An anonymous return is identified through the original invoice.
-- It does not create a customer record or customer account entry.
-- Any refund is recorded against the return.
+## 8. Not part of the first implementation
 
-## 4. Inventory
-
-### BR-STK-001
-- Posted sales decrease stock.
-- Posted returns increase stock.
-- Stock movement and current quantity updates must be atomic.
-
-### BR-STK-002
-- Inactive products cannot be used in new sales.
-- Historical documents must remain readable after product changes.
-
-### BR-STK-003
-- Negative stock is not allowed unless explicitly approved as a business rule.
-- The initial policy should reject sales exceeding available stock.
-
-## 5. Cash
-
-### BR-CASH-001
-- Cash transactions represent actual physical cash movements.
-- Cash received during sales and debt collection increases cash.
-- Cash refunds decrease cash.
-- A non-cash payment must not be recorded as physical cash.
-
-## 6. Data Integrity
-
-- Posted documents are immutable except through controlled reversal/cancellation.
-- All related document, stock, cash, and account changes must be atomic.
-- Foreign keys protect historical relationships.
-- Important constraints must be enforced in both application logic and database schema where possible.
-- All financial values must follow one defined currency precision and rounding policy.
-
-## 7. Decisions Requiring Client Confirmation
-
-- Whether returns without an original invoice are allowed.
-- Whether refunds must use the original payment method.
-- Whether the shop uses bank transfers or cards in V1.
-- Whether old customer balances must be imported.
-- Whether quotations are mandatory in V2.
-- Whether the customer needs per-invoice outstanding balances.
+- Customer or supplier allocation of receipts/payments to individual invoices.
+- FIFO allocation, negative customer balances, and automatic carry-forward customer credits.
+- Supplier cash-refund workflow for returns exceeding supplier debt.
+- Returns without an original invoice.
+- Multi-currency, tax accounting, or a full general ledger.
