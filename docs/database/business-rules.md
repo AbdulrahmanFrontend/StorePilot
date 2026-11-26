@@ -32,13 +32,14 @@ Balance = total debit - total credit.
 
 ## 4. Sales returns
 
-- A return must reference its original SaleInvoice and SaleInvoiceItems.
-- CustomerId is taken from the original invoice; it is not selected independently on the return.
-- Anonymous invoice: verify by invoice, restore stock, and refund the return value. Do not create a customer.
-- Registered customer: apply the return value against the customer's current debt first. Refund only the excess immediately. If there is no debt, refund the full amount.
+- Every return line must reference the exact original SaleInvoiceItem from which the product was sold.
+- One return document may contain items from more than one original invoice, so long as all source invoices belong to the same registered customer, or all are anonymous invoices. Do not mix different customers or anonymous and registered invoices in one return.
+- Customer identity is derived from the source invoices; it is not selected independently on the return.
+- Anonymous returns are verified against the original invoices, restore stock, and are refunded. Do not create a customer.
+- For a registered customer, apply the total return value against the customer's current account debt first. Refund only the excess immediately. If there is no debt, refund the full return value.
 - Example: debt 100 and return 30 => debt becomes 70, no cash refund. Debt 10 and return 30 => debt becomes zero and 20 is refunded. Debt zero and return 30 => refund 30.
 - Total returned quantity for each original invoice item cannot exceed its sold quantity after earlier returns.
-- Calculate the return using the original line's stored price/discount values, not today's product price.
+- Calculate each return line using the original line's stored price/discount values, not today's product price.
 - Return, stock, ledger, and refund/cash effects must succeed or fail together.
 
 ## 5. Purchases and supplier accounts
