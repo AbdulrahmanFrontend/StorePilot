@@ -31,26 +31,6 @@ function AppRoutes() {
       />
 
       <Route
-        path="/groups"
-        element={
-          <SectionPlaceholderPage
-            title="المجموعات"
-            description="إدارة مجموعات الأصناف."
-          />
-        }
-      />
-
-      <Route
-        path="/units"
-        element={
-          <SectionPlaceholderPage
-            title="الوحدات"
-            description="إدارة وحدات القياس."
-          />
-        }
-      />
-
-      <Route
         path="/customers"
         element={
           <SectionPlaceholderPage

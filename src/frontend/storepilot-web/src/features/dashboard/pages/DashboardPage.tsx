@@ -40,20 +40,6 @@ function DashboardPage() {
             description="إجمالي الأصناف النشطة في النظام"
             icon="📦"
           />
-
-          <StatCard
-            title="المجموعات المفعلة"
-            value={dashboard.data.activeGroupsCount}
-            description="إجمالي مجموعات الأصناف النشطة"
-            icon="🗂️"
-          />
-
-          <StatCard
-            title="الوحدات المفعلة"
-            value={dashboard.data.activeUnitsCount}
-            description="إجمالي وحدات القياس النشطة"
-            icon="📏"
-          />
         </section>
       )}
     </AppLayout>

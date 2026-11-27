@@ -13,8 +13,6 @@ const mockedGetDashboardSummary = vi.mocked(getDashboardSummary)
 
 const summary: DashboardSummary = {
   activeProductsCount: 25,
-  activeGroupsCount: 8,
-  activeUnitsCount: 4,
 }
 
 describe('useDashboardSummary', () => {

@@ -15,8 +15,6 @@ const mockedGetDashboardSummary = vi.mocked(getDashboardSummary)
 
 const summary: DashboardSummary = {
   activeProductsCount: 25,
-  activeGroupsCount: 8,
-  activeUnitsCount: 4,
 }
 
 describe('DashboardPage', () => {
@@ -52,9 +50,6 @@ describe('DashboardPage', () => {
     expect(
       await screen.findByText('الأصناف المفعلة'),
     ).toBeInTheDocument()
-
-    expect(screen.getByText('المجموعات المفعلة')).toBeInTheDocument()
-    expect(screen.getByText('الوحدات المفعلة')).toBeInTheDocument()
 
     const productsCard = screen
       .getByText('الأصناف المفعلة')
