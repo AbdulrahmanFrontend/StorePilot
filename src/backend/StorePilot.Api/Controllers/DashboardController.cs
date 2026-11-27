@@ -17,14 +17,6 @@ public sealed class DashboardController(
         var summary = new DashboardSummaryDto(
             ActiveProductsCount: await dbContext.Products.CountAsync(
                 product => product.IsActive,
-                cancellationToken),
-
-            ActiveGroupsCount: await dbContext.ProductGroups.CountAsync(
-                group => group.IsActive,
-                cancellationToken),
-
-            ActiveUnitsCount: await dbContext.Units.CountAsync(
-                unit => unit.IsActive,
                 cancellationToken)
         );
 

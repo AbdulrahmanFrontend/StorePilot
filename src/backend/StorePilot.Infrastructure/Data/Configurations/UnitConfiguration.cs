@@ -23,17 +23,6 @@ internal sealed class UnitConfiguration : IEntityTypeConfiguration<Unit>
             .IsUnique()
             .HasDatabaseName("UQ_Units_Name");
 
-        builder.Property(u => u.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        builder.Property(u => u.IsActive)
-            .IsRequired()
-            .HasDefaultValue(true);
-
-        builder.Property(u => u.Notes)
-            .HasMaxLength(100);
-
         builder.HasMany(u => u.Products)
             .WithOne(p => p.Unit)
             .HasForeignKey(p => p.UnitId)

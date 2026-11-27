@@ -30,18 +30,6 @@ function AppSidebar() {
         />
 
         <SidebarItem
-          label="المجموعات"
-          icon="🗂️"
-          to="/groups"
-        />
-
-        <SidebarItem
-          label="الوحدات"
-          icon="📏"
-          to="/units"
-        />
-
-        <SidebarItem
           label="العملاء"
           icon="👥"
           to="/customers"
