@@ -23,17 +23,6 @@ internal sealed class ProductGroupConfiguration : IEntityTypeConfiguration<Produ
             .IsUnique()
             .HasDatabaseName("UQ_Groups_Name");
 
-        builder.Property(g => g.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        builder.Property(g => g.IsActive)
-            .IsRequired()
-            .HasDefaultValue(true);
-
-        builder.Property(g => g.Notes)
-            .HasMaxLength(100);
-
         builder.HasMany(g => g.Products)
             .WithOne(p => p.Group)
             .HasForeignKey(p => p.GroupId)

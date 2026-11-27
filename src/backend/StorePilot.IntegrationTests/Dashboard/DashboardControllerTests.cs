@@ -40,44 +40,24 @@ public sealed class DashboardControllerTests : IDisposable
 
         // Assert
         Assert.Equal(0, result.ActiveProductsCount);
-        Assert.Equal(0, result.ActiveGroupsCount);
-        Assert.Equal(0, result.ActiveUnitsCount);
     }
 
     [Fact]
-    public async Task GetSummary_WhenActiveAndInactiveRecordsExist_ReturnsOnlyActiveCounts()
+    public async Task GetSummary_WhenProductsExist_ReturnsActiveProductsCount()
     {
         // Arrange
-        var activeUnit = new Unit
+        var unit = new Unit
         {
             Name = "Piece",
-            CreatedAt = DateTime.UtcNow,
-            IsActive = true
         };
 
-        var inactiveUnit = new Unit
-        {
-            Name = "Box",
-            CreatedAt = DateTime.UtcNow,
-            IsActive = false
-        };
-
-        var activeGroup = new ProductGroup
+        var group = new ProductGroup
         {
             Name = "Pipes",
-            CreatedAt = DateTime.UtcNow,
-            IsActive = true
         };
 
-        var inactiveGroup = new ProductGroup
-        {
-            Name = "Tools",
-            CreatedAt = DateTime.UtcNow,
-            IsActive = false
-        };
-
-        _dbContext.Units.AddRange(activeUnit, inactiveUnit);
-        _dbContext.ProductGroups.AddRange(activeGroup, inactiveGroup);
+        _dbContext.Units.AddRange(unit);
+        _dbContext.ProductGroups.AddRange(group);
 
         await _dbContext.SaveChangesAsync();
 
@@ -85,16 +65,16 @@ public sealed class DashboardControllerTests : IDisposable
             new Product
             {
                 Name = "Active Product",
-                UnitId = activeUnit.Id,
-                GroupId = activeGroup.Id,
+                UnitId = unit.Id,
+                GroupId = group.Id,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             },
             new Product
             {
                 Name = "Inactive Product",
-                UnitId = activeUnit.Id,
-                GroupId = activeGroup.Id,
+                UnitId = unit.Id,
+                GroupId = group.Id,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = false
             });
@@ -106,8 +86,6 @@ public sealed class DashboardControllerTests : IDisposable
 
         // Assert
         Assert.Equal(1, result.ActiveProductsCount);
-        Assert.Equal(1, result.ActiveGroupsCount);
-        Assert.Equal(1, result.ActiveUnitsCount);
     }
 
     private async Task<DashboardSummaryDto> GetSummaryAsync()
